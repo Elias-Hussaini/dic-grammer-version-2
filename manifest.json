@@ -1,0 +1,18 @@
+{
+  "name": "DE.Grammer",
+  "short_name": "DE.Grammer ",
+  "description": "اپلیکیشن یادگیری گرامر آلمانی",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#2c3e50",
+  "theme_color": "#2c3e50",
+  "icons": [
+    {
+      "src": "icon-512.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ],
+  "lang": "fa",
+  "dir": "rtl"
+}

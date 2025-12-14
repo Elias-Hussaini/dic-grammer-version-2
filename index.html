@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اپلیکیشن پیشرفته یادگیری گرامر آلمانی</title>
+    <meta name="description" content="یادگیری گرامر آلمانی با درس‌های طبقه‌بندی شده و سیستم مدیریت پیشرفته">
+    <meta name="theme-color" content="#2c3e50">
+    
+    <!-- PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- iOS PWA Support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content=" DE.Grammer">
+    <link rel="apple-touch-icon" href="icon-512.jpg">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/@mdi/font@7.2.96/css/materialdesignicons.min.css" rel="stylesheet">
+    
+    <!-- PWA Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js')
+                    .then(registration => {
+                        console.log('ServiceWorker ثبت شد با دامنه:', registration.scope);
+                    })
+                    .catch(error => {
+                        console.log('ثبت ServiceWorker با خطا مواجه شد:', error);
+                    });
+            });
+        }
+    </script>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-content">
+            <div class="loading-spinner">
+                <div class="spinner"></div>
+            </div>
+            <h2 class="loading-text">در حال بارگذاری اپلیکیشن</h2>
+            <p class="loading-subtext">لطفا چند لحظه صبر کنید...</p>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div class="app-container">
+        <!-- Header -->
+        <header class="main-header">
+            <div class="header-left">
+                <button class="menu-toggle" id="menuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="logo">
+                    <i class="fas fa-book-open"></i>
+                    <h1>گرامر آلمانی</h1>
+                </div>
+            </div>
+            
+            <div class="header-center">
+                <div class="progress-indicator">
+                    <div class="progress-label">
+                        <span>پیشرفت کلی</span>
+                        <span id="overallProgressPercent">0%</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="overallProgressFill"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-right">
+    
+    
+    <!-- دکمه فول‌اسکرین -->
+    <button class="header-btn" id="fullscreenBtn" title="حالت تمام صفحه">
+        <i class="fas fa-expand"></i>
+    </button>
+                    <button class="header-btn" id="dictionaryBtn" title="دیکشنری">
+        <i class="fas fa-book"></i>
+    </button>
+                <button class="header-btn" id="backupBtn" title="پشتیبان‌گیری">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </button>
+                <button class="header-btn" id="themeToggle" title="تغییر تم">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <div class="user-avatar">
+                    <i class="fas fa-user-graduate"></i>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-header">
+                    <div class="user-info">
+                        <div class="user-avatar-large">
+                            <i class="fas fa-user-graduate"></i>
+                        </div>
+                        <div class="user-details">
+                            <h3>یادگیرنده آلمانی</h3>
+                            <p class="user-level">سطح: مبتدی</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <nav class="sidebar-nav">
+                    <ul>
+                        <li class="nav-item active" data-section="dashboard">
+                            <i class="fas fa-home"></i>
+                            <span>داشبورد</span>
+                        </li>
+                        <li class="nav-item" data-section="lessons">
+                            <i class="fas fa-graduation-cap"></i>
+                            <span>درس‌های گرامر</span>
+                        </li>
+                        <li class="nav-item" data-section="my-lessons">
+                            <i class="fas fa-bookmark"></i>
+                            <span>درس‌های ذخیره شده</span>
+                        </li>
+                        <li class="nav-item" data-section="add-lesson">
+                            <i class="fas fa-plus-circle"></i>
+                            <span>افزودن درس جدید</span>
+                        </li>
+                        <li class="nav-item" data-section="stats">
+                            <i class="fas fa-chart-line"></i>
+                            <span>آمار و نمودار</span>
+                        </li>
+                        <li class="nav-item" data-section="settings">
+                            <i class="fas fa-cog"></i>
+                            <span>تنظیمات</span>
+                        </li>
+                    </ul>
+                </nav>
+                
+                <div class="sidebar-footer">
+                    <div class="quick-stats">
+                        <div class="stat">
+                            <i class="fas fa-check-circle"></i>
+                            <span id="sidebarCompleted">0</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-book"></i>
+                            <span id="sidebarTotal">0</span>
+                        </div>
+                        <div class="stat">
+                            <i class="fas fa-star"></i>
+                            <span id="sidebarScore">0</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+<div class="sidebar-overlay" id="sidebarOverlay"></div>
+            <!-- Content Area -->
+            <div class="content-area">
+                <!-- Dashboard -->
+                <section id="dashboard" class="content-section active">
+                    <div class="section-header">
+                        <h2><i class="fas fa-tachometer-alt"></i> داشبورد</h2>
+                        <div class="date-display" id="currentDate"></div>
+                    </div>
+                    
+                    <div class="welcome-card">
+                        <div class="welcome-content">
+                            <h3>سلام! امروز چه چیزی می‌خواهید یاد بگیرید؟</h3>
+                            <p>در اپلیکیشن گرامر آلمانی، می‌توانید درس‌های جدید اضافه کنید، آن‌ها را ذخیره کنید و پیشرفت خود را دنبال کنید.</p>
+                        </div>
+                        <div class="welcome-image">
+                            <i class="fas fa-language"></i>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-cards">
+                        <div class="stat-card primary">
+                            <div class="stat-icon">
+                                <i class="fas fa-book-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>کل درس‌ها</h4>
+                                <p id="totalLessons">0</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card success">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-double"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>تکمیل شده</h4>
+                                <p id="completedLessons">0</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card warning">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>در حال یادگیری</h4>
+                                <p id="inProgressLessons">0</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card danger">
+                            <div class="stat-icon">
+                                <i class="fas fa-flag"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h4>اولویت‌دار</h4>
+                                <p id="priorityLessons">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="dashboard-grid">
+                        <div class="recent-lessons">
+                            <div class="card-header">
+                                <h3><i class="fas fa-history"></i> درس‌های اخیر</h3>
+                                <button class="btn-icon" id="refreshRecent">
+                                    <i class="fas fa-redo"></i>
+                                </button>
+                            </div>
+                            <div class="lessons-list" id="recentLessonsList">
+                                <!-- Recent lessons will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="quick-actions">
+                            <div class="card-header">
+                                <h3><i class="fas fa-bolt"></i> دسترسی سریع</h3>
+                            </div>
+                            <div class="actions-grid">
+                                <button class="action-btn" data-section="add-lesson">
+                                    <i class="fas fa-plus-circle"></i>
+                                    <span>درس جدید</span>
+                                </button>
+                                <button class="action-btn" data-section="my-lessons">
+                                    <i class="fas fa-bookmark"></i>
+                                    <span>مطالعه مجدد</span>
+                                </button>
+                                <button class="action-btn" data-section="lessons">
+                                    <i class="fas fa-graduation-cap"></i>
+                                    <span>ادامه یادگیری</span>
+                                </button>
+                                <button class="action-btn" id="backupQuickBtn">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    <span>پشتیبان‌گیری</span>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="progress-chart">
+                            <div class="card-header">
+                                <h3><i class="fas fa-chart-pie"></i> پیشرفت هفتگی</h3>
+                            </div>
+                            <div class="chart-container">
+                                <canvas id="weeklyProgressChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="motivational-quote">
+                            <div class="quote-content">
+                                <i class="fas fa-quote-left"></i>
+                                <p id="dailyQuote">یادگیری زبان جدید، دری به دنیایی جدید می‌گشاید.</p>
+                                <i class="fas fa-quote-right"></i>
+                            </div>
+                            <div class="quote-author">
+                                <span>- فریدریش نیچه</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Grammar Lessons -->
+                <section id="lessons" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-graduation-cap"></i> درس‌های گرامر آلمانی</h2>
+                        <div class="section-actions">
+                            <div class="search-box">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="lessonSearch" placeholder="جستجوی درس...">
+                            </div>
+                            <select id="lessonFilter" class="filter-select">
+                                <option value="all">همه سطوح</option>
+                                <option value="beginner">مبتدی</option>
+                                <option value="intermediate">متوسط</option>
+                                <option value="advanced">پیشرفته</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="lessons-container" id="lessonsContainer">
+                        <!-- Lessons will be loaded here -->
+                    </div>
+                    
+                    <div class="load-more">
+                        <button class="btn-outline" id="loadMoreLessons">
+                            <i class="fas fa-plus"></i>
+                            بارگذاری درس‌های بیشتر
+                        </button>
+                    </div>
+                </section>
+
+                <!-- My Saved Lessons -->
+                <section id="my-lessons" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-bookmark"></i> درس‌های ذخیره شده من</h2>
+                        <div class="section-actions">
+                            <button class="btn-icon" id="sortSavedBtn" title="مرتب‌سازی">
+                                <i class="fas fa-sort-amount-down"></i>
+                            </button>
+                            <button class="btn-icon" id="filterSavedBtn" title="فیلتر">
+                                <i class="fas fa-filter"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="saved-lessons-container" id="savedLessonsContainer">
+                        <!-- Saved lessons will be loaded here -->
+                    </div>
+                    
+                    <div class="empty-state" id="emptySavedState">
+                        <i class="fas fa-bookmark"></i>
+                        <h3>هنوز درسی ذخیره نکرده‌اید</h3>
+                        <p>درس‌هایی را که می‌خواهید بعداً مطالعه کنید، ذخیره کنید.</p>
+                        <button class="btn-primary" data-section="lessons">
+                            <i class="fas fa-graduation-cap"></i>
+                            مشاهده درس‌ها
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Add New Lesson -->
+                <section id="add-lesson" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-plus-circle"></i> افزودن درس جدید گرامر</h2>
+                        <p class="section-subtitle">درس جدید گرامر آلمانی را با جزئیات کامل اضافه کنید</p>
+                    </div>
+                    
+                    <div class="lesson-form-container">
+                        <form id="newLessonForm">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="lessonTitle">
+                                        <i class="fas fa-heading"></i>
+                                        عنوان درس
+                                    </label>
+                                    <input type="text" id="lessonTitle" placeholder="مثال: حالت داتیو در آلمانی" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="lessonCategory">
+                                        <i class="fas fa-folder"></i>
+                                        دسته‌بندی
+                                    </label>
+                                    <select id="lessonCategory" required>
+                                        <option value="">انتخاب کنید</option>
+                                        <option value="cases">حالت‌های اسم</option>
+                                        <option value="verbs">افعال</option>
+                                        <option value="tenses">زمان‌ها</option>
+                                        <option value="prepositions">حروف اضافه</option>
+                                        <option value="syntax">نحو و ساختار جمله</option>
+                                        <option value="other">سایر</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="lessonLevel">
+                                        <i class="fas fa-chart-line"></i>
+                                        سطح دشواری
+                                    </label>
+                                    <select id="lessonLevel" required>
+                                        <option value="beginner">مبتدی</option>
+                                        <option value="intermediate">متوسط</option>
+                                        <option value="advanced">پیشرفته</option>
+                                    </select>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="lessonPriority">
+                                        <i class="fas fa-flag"></i>
+                                        اولویت
+                                    </label>
+                                    <select id="lessonPriority">
+                                        <option value="low">کم</option>
+                                        <option value="medium" selected>متوسط</option>
+                                        <option value="high">زیاد</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lessonDescription">
+                                    <i class="fas fa-align-left"></i>
+                                    توضیح کوتاه
+                                </label>
+                                <textarea id="lessonDescription" rows="3" placeholder="توضیح مختصر درباره این درس..." required></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lessonContent">
+                                    <i class="fas fa-file-alt"></i>
+                                    محتوای درس (HTML پشتیبانی می‌شود)
+                                </label>
+                                <div class="editor-toolbar">
+                                    <button type="button" class="editor-btn" data-command="bold">
+                                        <i class="fas fa-bold"></i>
+                                    </button>
+                                    <button type="button" class="editor-btn" data-command="italic">
+                                        <i class="fas fa-italic"></i>
+                                    </button>
+                                    <button type="button" class="editor-btn" data-command="insertunorderedlist">
+                                        <i class="fas fa-list-ul"></i>
+                                    </button>
+                                    <button type="button" class="editor-btn" data-command="insertorderedlist">
+                                        <i class="fas fa-list-ol"></i>
+                                    </button>
+                                    <button type="button" class="editor-btn" data-command="createlink">
+                                        <i class="fas fa-link"></i>
+                                    </button>
+                                </div>
+                                <div class="content-editor" id="lessonContent" contenteditable="true" placeholder="محتوای کامل درس را اینجا بنویسید..."></div>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>
+                                    <i class="fas fa-code"></i>
+                                    مثال‌ها
+                                </label>
+                                <div class="examples-container" id="examplesContainer">
+                                    <!-- Examples will be added here -->
+                                </div>
+                                <button type="button" class="btn-outline" id="addExampleBtn">
+                                    <i class="fas fa-plus"></i>
+                                    افزودن مثال
+                                </button>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="lessonTags">
+                                    <i class="fas fa-tags"></i>
+                                    برچسب‌ها (با کاما جدا کنید)
+                                </label>
+                                <input type="text" id="lessonTags" placeholder="مثال: داتیو, مفعول غیرمستقیم, حالت">
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="button" class="btn-secondary" id="previewLessonBtn">
+                                    <i class="fas fa-eye"></i>
+                                    پیش‌نمایش
+                                </button>
+                                <button type="submit" class="btn-primary">
+                                    <i class="fas fa-save"></i>
+                                    ذخیره درس
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </section>
+
+                <!-- Stats & Charts -->
+                <section id="stats" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-chart-line"></i> آمار و نمودار پیشرفت</h2>
+                        <div class="time-filter">
+                            <select id="statsTimeRange" class="filter-select">
+                                <option value="week">هفته جاری</option>
+                                <option value="month">ماه جاری</option>
+                                <option value="year">سال جاری</option>
+                                <option value="all">همه زمان‌ها</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-chart-card">
+                            <h3><i class="fas fa-chart-bar"></i> توزیع درس‌ها بر اساس سطح</h3>
+                            <div class="chart-container">
+                                <canvas id="levelDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-chart-card">
+                            <h3><i class="fas fa-chart-pie"></i> وضعیت درس‌ها</h3>
+                            <div class="chart-container">
+                                <canvas id="statusDistributionChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-chart-card">
+                            <h3><i class="fas fa-chart-line"></i> فعالیت روزانه</h3>
+                            <div class="chart-container">
+                                <canvas id="dailyActivityChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-chart-card">
+                            <h3><i class="fas fa-tags"></i> دسته‌بندی درس‌ها</h3>
+                            <div class="chart-container">
+                                <canvas id="categoryDistributionChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detailed-stats">
+                        <div class="stats-table">
+                            <h3><i class="fas fa-table"></i> آمار تفصیلی</h3>
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>دسته‌بندی</th>
+                                        <th>کل درس‌ها</th>
+                                        <th>تکمیل شده</th>
+                                        <th>در حال یادگیری</th>
+                                        <th>نسبت موفقیت</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="detailedStatsBody">
+                                    <!-- Stats will be loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Settings -->
+                <section id="settings" class="content-section">
+                    <div class="section-header">
+                        <h2><i class="fas fa-cog"></i> تنظیمات اپلیکیشن</h2>
+                        <p class="section-subtitle">تنظیمات شخصی و مدیریت داده‌ها</p>
+                    </div>
+                    
+                    <div class="settings-container">
+                        <div class="settings-card">
+                            <h3><i class="fas fa-user-cog"></i> تنظیمات شخصی</h3>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>نام نمایشی</h4>
+                                    <p>نامی که در اپلیکیشن نمایش داده می‌شود</p>
+                                </div>
+                                <input type="text" id="displayName" placeholder="یادگیرنده آلمانی" class="setting-input">
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>سطح فعلی</h4>
+                                    <p>سطح فعلی شما در زبان آلمانی</p>
+                                </div>
+                                <select id="userLevel" class="setting-select">
+                                    <option value="beginner">مبتدی</option>
+                                    <option value="intermediate">متوسط</option>
+                                    <option value="advanced">پیشرفته</option>
+                                </select>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>هدف روزانه</h4>
+                                    <p>تعداد درس‌هایی که روزانه می‌خواهید مطالعه کنید</p>
+                                </div>
+                                <select id="dailyGoal" class="setting-select">
+                                    <option value="1">1 درس</option>
+                                    <option value="2" selected>2 درس</option>
+                                    <option value="3">3 درس</option>
+                                    <option value="5">5 درس</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-card">
+                            <h3><i class="fas fa-palette"></i> تنظیمات ظاهری</h3>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>تم اپلیکیشن</h4>
+                                    <p>انتخاب تم تاریک یا روشن</p>
+                                </div>
+                                <div class="theme-toggle">
+                                    <button class="theme-option active" data-theme="light">
+                                        <i class="fas fa-sun"></i>
+                                        روشن
+                                    </button>
+                                    <button class="theme-option" data-theme="dark">
+                                        <i class="fas fa-moon"></i>
+                                        تاریک
+                                    </button>
+                                    <button class="theme-option" data-theme="auto">
+                                        <i class="fas fa-adjust"></i>
+                                        خودکار
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>سایز فونت</h4>
+                                    <p>اندازه متن در اپلیکیشن</p>
+                                </div>
+                                <div class="font-size-control">
+                                    <button class="font-size-btn" data-size="small">کوچک</button>
+                                    <button class="font-size-btn active" data-size="medium">متوسط</button>
+                                    <button class="font-size-btn" data-size="large">بزرگ</button>
+                                </div>
+                            </div>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>انیمیشن‌ها</h4>
+                                    <p>نمایش انیمیشن‌ها در اپلیکیشن</p>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="animationsToggle" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-card">
+                            <h3><i class="fas fa-database"></i> مدیریت داده‌ها</h3>
+                            
+                            <div class="setting-item">
+                                <div class="setting-info">
+                                    <h4>پشتیبان‌گیری</h4>
+                                    <p>ایجاد فایل پشتیبان از تمام داده‌ها</p>
+                                </div>
+                                <button class="btn-outline" id="settingsBackupBtn">
+                                    <i class="fas fa-cloud-upload-alt"></i>
+                                    ایجاد پشتیبان
+                                </button>
+                            </div>
+                            
+                        
+                            
+                            <div class="setting-item danger">
+                                <div class="setting-info">
+                                    <h4>حذف همه داده‌ها</h4>
+                                    <p>تمام داده‌ها و تنظیمات حذف خواهند شد</p>
+                                </div>
+                                <button class="btn-danger" id="clearAllDataBtn">
+                                    <i class="fas fa-trash-alt"></i>
+                                    حذف همه
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="settings-card">
+                            <h3><i class="fas fa-info-circle"></i> درباره اپلیکیشن</h3>
+                            
+                            <div class="about-app">
+                                <div class="app-logo">
+                                    <i class="fas fa-book-open"></i>
+                                </div>
+                                <div class="app-info">
+                                    <h4>گرامر آلمانی</h4>
+                                    <p>نسخه: 2.0.0</p>
+                                    <p>توسعه‌دهنده: یادگیرنده آلمانی</p>
+                                    <p>یک اپلیکیشن PWA برای مدیریت و یادگیری گرامر آلمانی</p>
+                                </div>
+                            </div>
+                            
+                            <div class="app-actions">
+                                <button class="btn-outline" id="exportDataBtn">
+                                    <i class="fas fa-file-export"></i>
+                                    خروجی JSON
+                                </button>
+                                <button class="btn-outline" id="checkUpdateBtn">
+                                    <i class="fas fa-sync-alt"></i>
+                                    بررسی بروزرسانی
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </main>
+
+        <!-- Add Lesson Modal -->
+        <div id="lessonModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-graduation-cap"></i> <span id="modalLessonTitle"></span></h3>
+                    <button class="modal-close" id="closeLessonModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="lesson-meta">
+                        <span class="lesson-level" id="modalLessonLevel"></span>
+                        <span class="lesson-category" id="modalLessonCategory"></span>
+                        <span class="lesson-date" id="modalLessonDate"></span>
+                    </div>
+                    <div class="lesson-content" id="modalLessonContent">
+                        <!-- Lesson content will be loaded here -->
+                    </div>
+                    <div class="lesson-actions">
+                        <button class="btn-outline" id="markAsReadBtn">
+                            <i class="fas fa-check-circle"></i>
+                            علامت‌گذاری به عنوان خوانده شده
+                        </button>
+                        <button class="btn-primary" id="saveLessonBtn">
+                            <i class="fas fa-bookmark"></i>
+                            ذخیره درس
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup/Restore Modal -->
+        <div id="backupModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3><i class="fas fa-cloud-upload-alt"></i> پشتیبان‌گیری و بازیابی</h3>
+                    <button class="modal-close" id="closeBackupModal">&times;</button>
+                </div>
+                <div class="modal-body">
+                   
+                    
+                    <div class="tab-content active" id="backupTab">
+                        <div class="backup-info">
+                            <div class="info-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="info-content">
+                                <h4>ایجاد پشتیبان امن</h4>
+                                <p>تمام درس‌ها، تنظیمات و پیشرفت شما در یک فایل امن ذخیره می‌شود.</p>
+                                <p class="backup-stats">
+                                    <i class="fas fa-database"></i>
+                                    حجم تخمینی: <span id="backupSize">0 KB</span>
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="backup-options">
+                            <div class="option-card">
+                                <h5><i class="fas fa-file-download"></i> دانلود فایل پشتیبان</h5>
+                                <p>فایل پشتیبان را روی دستگاه خود ذخیره کنید.</p>
+                                <button class="btn-primary" id="downloadBackupBtn">
+                                    <i class="fas fa-download"></i>
+                                    دانلود پشتیبان
+                                </button>
+                            </div>
+                            
+                            <div class="option-card">
+                                <h5><i class="fas fa-print"></i> چاپ لیست درس‌ها</h5>
+                                <p>لیست درس‌های ذخیره شده را چاپ کنید.</p>
+                                <button class="btn-outline" id="printLessonsBtn">
+                                    <i class="fas fa-print"></i>
+                                    چاپ لیست
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="tab-content" id="restoreTab">
+                        <div class="restore-info">
+                            <div class="info-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="info-content">
+                                <h4>بازیابی اطلاعات</h4>
+                                <p>فایل پشتیبان قبلی را انتخاب کنید تا اطلاعات شما بازیابی شود.</p>
+                                <p class="warning-text">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                    توجه: این عمل داده‌های فعلی را جایگزین می‌کند.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <div class="file-upload">
+                            <input type="file" id="restoreFile" accept=".json" style="display: none;">
+                            <div class="upload-area" id="uploadArea">
+                                <i class="fas fa-cloud-upload-alt"></i>
+                                <p>فایل پشتیبان را اینجا رها کنید یا کلیک کنید</p>
+                                <span class="file-types">پذیرش فایل‌های JSON</span>
+                            </div>
+                            <div class="selected-file" id="selectedFileInfo"></div>
+                        </div>
+                        
+                        <div class="restore-actions">
+                            <button class="btn-primary" id="restoreBackupBtn" disabled>
+                                <i class="fas fa-play-circle"></i>
+                                شروع بازیابی
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast Notification -->
+        <div id="toast" class="toast">
+            <div class="toast-content">
+                <i class="toast-icon"></i>
+                <span class="toast-message"></span>
+            </div>
+        </div>
+
+        <!-- Install Prompt -->
+        <div id="installPrompt" class="install-prompt">
+            <div class="install-content">
+                <i class="fas fa-download"></i>
+                <div class="install-text">
+                    <h4>نصب اپلیکیشن</h4>
+                    <p>برای دسترسی سریع‌تر، این اپلیکیشن را نصب کنید.</p>
+                </div>
+                <div class="install-actions">
+                    <button class="btn-outline" id="installLaterBtn">بعداً</button>
+                    <button class="btn-primary" id="installNowBtn">نصب</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+    <script src="service-worker.js"></script>
+ 
+ 
+</body>
+</html>
